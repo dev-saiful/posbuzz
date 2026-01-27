@@ -13,16 +13,5 @@
     "build": "npm run build --workspaces",
     "lint": "npm run lint --workspaces",
     "test": "npm run test --workspaces --if-present"
-  },
-  "dependencies": {
-    "@prisma/adapter-pg": "^7.3.0",
-    "@prisma/client": "^7.3.0",
-    "@tanstack/react-query": "^5.90.20",
-    "antd": "^6.2.2",
-    "axios": "^1.13.3"
-  },
-  "devDependencies": {
-    "dotenv": "^17.2.3",
-    "prisma": "^7.3.0"
   }
 }

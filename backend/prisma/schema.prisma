@@ -9,18 +9,20 @@ generator client {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
+  id       String    @id @default(uuid())
   email    String @unique
   password String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  sales    Sale[]
 }
 
 model Product {
-  id             Int @id @default(autoincrement())
+  id             String @id @default(uuid())
   name           String
   sku            String @unique
-  price          Float
+  price          Decimal @db.Decimal(10, 2)
   stockQuantity Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
@@ -29,19 +31,23 @@ model Product {
 }
 
 model Sale {
-  id        Int @id @default(autoincrement())
-  totalAmount Float
+  id        String @id @default(uuid())
+  userId   String
+  totalAmount Decimal @db.Decimal(10, 2)
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   items     SaleItem[]
+  user User @relation(fields: [userId], references: [id])
 }
 
 model SaleItem {
-  id        Int @id @default(autoincrement())
-  saleId   Int
-  productId Int
+  id        String @id @default(uuid())
+  saleId   String
+  productId String
   quantity Int
-  price   Float
+  price   Decimal @db.Decimal(10, 2)
 
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }
