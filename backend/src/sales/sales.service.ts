@@ -5,7 +5,7 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
-import { Prisma } from 'generated/prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class SalesService {

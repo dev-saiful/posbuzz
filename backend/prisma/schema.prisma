@@ -3,52 +3,51 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client"
-  output   = "../generated/prisma"
-  moduleFormat = "cjs"
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
 }
 
 model User {
-  id       String    @id @default(uuid())
-  email    String @unique
-  name     String
-  password String
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String
+  password  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  sales    Sale[]
+  sales Sale[]
 }
 
 model Product {
-  id             String @id @default(uuid())
-  name           String
-  sku            String @unique
-  price          Decimal @db.Decimal(10, 2)
+  id            String   @id @default(uuid())
+  name          String
+  sku           String   @unique
+  price         Decimal  @db.Decimal(10, 2)
   stockQuantity Int
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
-  saleItems      SaleItem[]
+  saleItems SaleItem[]
 }
 
 model Sale {
-  id        String @id @default(uuid())
-  userId   String
-  totalAmount Decimal @db.Decimal(10, 2)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          String   @id @default(uuid())
+  userId      String
+  totalAmount Decimal  @db.Decimal(10, 2)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  items     SaleItem[]
-  user User @relation(fields: [userId], references: [id])
+  items SaleItem[]
+  user  User       @relation(fields: [userId], references: [id])
 }
 
 model SaleItem {
-  id        String @id @default(uuid())
-  saleId   String
+  id        String  @id @default(uuid())
+  saleId    String
   productId String
-  quantity Int
-  price   Decimal @db.Decimal(10, 2)
+  quantity  Int
+  price     Decimal @db.Decimal(10, 2)
 
-  sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
   product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
 }
