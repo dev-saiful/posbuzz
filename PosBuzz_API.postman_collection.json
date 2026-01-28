@@ -1,0 +1,333 @@
+{
+  "info": {
+    "_postman_id": "posbuzz-api-collection",
+    "name": "PosBuzz API",
+    "description": "API collection for PosBuzz - A Point of Sale application with authentication, product management, and sales tracking.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "item": [
+        {
+          "name": "Get Hello",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Health check endpoint to verify the API is running."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"name\": \"John Doe\",\n  \"password\": \"Password@123\",\n  \"confirmPassword\": \"Password@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account.\n\n**Password Requirements:**\n- Minimum 8 characters\n- At least one uppercase letter\n- At least one lowercase letter\n- At least one number\n- At least one special character (@$!%*?&)"
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"user@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Login with email and password. Sets HTTP-only cookies for access_token and refresh_token."
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            },
+            "description": "Logout the current user. Revokes the refresh token and clears authentication cookies."
+          },
+          "response": []
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "refresh"]
+            },
+            "description": "Refresh the access token using the refresh token from cookies. Returns new access and refresh tokens."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Get the authenticated user's profile information. Requires authentication."
+          },
+          "response": []
+        }
+      ],
+      "description": "Authentication endpoints for user registration, login, logout, and token management."
+    },
+    {
+      "name": "Products",
+      "item": [
+        {
+          "name": "Create Product",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Sample Product\",\n  \"sku\": \"SKU-001\",\n  \"price\": 29.99,\n  \"stockQuantity\": 100\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"]
+            },
+            "description": "Create a new product. Requires authentication.\n\n**Fields:**\n- `name` (string, required): Product name\n- `sku` (string, required): Stock Keeping Unit\n- `price` (number, required): Product price (max 2 decimal places, min 0)\n- `stockQuantity` (integer, required): Available stock (min 0)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Products",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["products"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page (default: 10)"
+                }
+              ]
+            },
+            "description": "Get all products with pagination. Requires authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Product by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "product-uuid-here",
+                  "description": "Product UUID"
+                }
+              ]
+            },
+            "description": "Get a specific product by its ID. Requires authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Product",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated Product Name\",\n  \"price\": 39.99,\n  \"stockQuantity\": 150\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/products/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "product-uuid-here",
+                  "description": "Product UUID"
+                }
+              ]
+            },
+            "description": "Update an existing product. All fields are optional. Requires authentication.\n\n**Fields (all optional):**\n- `name` (string): Product name\n- `sku` (string): Stock Keeping Unit\n- `price` (number): Product price (max 2 decimal places, min 0)\n- `stockQuantity` (integer): Available stock (min 0)"
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Product",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/products/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["products", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "product-uuid-here",
+                  "description": "Product UUID"
+                }
+              ]
+            },
+            "description": "Delete a product by its ID. Requires authentication."
+          },
+          "response": []
+        }
+      ],
+      "description": "Product management endpoints for CRUD operations. All endpoints require authentication."
+    },
+    {
+      "name": "Sales",
+      "item": [
+        {
+          "name": "Create Sale",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"productId\": \"product-uuid-1\",\n      \"quantity\": 2\n    },\n    {\n      \"productId\": \"product-uuid-2\",\n      \"quantity\": 1\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/sales",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales"]
+            },
+            "description": "Create a new sale. Requires authentication.\n\n**Request Body:**\n- `items` (array, required): Array of sale items\n  - `productId` (UUID, required): Product UUID\n  - `quantity` (integer, required): Quantity to purchase (min 1)"
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Sales",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales?page=1&limit=10",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1",
+                  "description": "Page number (default: 1)"
+                },
+                {
+                  "key": "limit",
+                  "value": "10",
+                  "description": "Items per page (default: 10)"
+                }
+              ]
+            },
+            "description": "Get all sales with pagination. Requires authentication."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Sale by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/sales/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["sales", ":id"],
+              "variable": [
+                {
+                  "key": "id",
+                  "value": "sale-uuid-here",
+                  "description": "Sale UUID"
+                }
+              ]
+            },
+            "description": "Get a specific sale by its ID. Requires authentication."
+          },
+          "response": []
+        }
+      ],
+      "description": "Sales endpoints for creating and viewing sales transactions. All endpoints require authentication."
+    }
+  ]
+}
