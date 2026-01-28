@@ -82,8 +82,17 @@ export class ProductsService {
 
   async deleteProduct(id: string) {
     await this.getProductById(id); // Verify exists first
-    return await this.prisma.product.delete({
-      where: { id },
-    });
+    try {
+      return await this.prisma.product.delete({
+        where: { id },
+      });
+    } catch (error: any) {
+      if (error.code === 'P2003') {
+        throw new ConflictException(
+          'Cannot delete product. It is referenced in existing sales.',
+        );
+      }
+      throw error;
+    }
   }
 }

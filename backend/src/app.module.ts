@@ -9,11 +9,16 @@ import { SalesModule } from './sales/sales.module';
 import { ProductsModule } from './products/products.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(
-    {
+  imports: [
+    ConfigModule.forRoot({
       isGlobal: true,
-    }
-  ), AuthModule, UsersModule, PrismaModule, SalesModule, ProductsModule],
+    }),
+    AuthModule,
+    UsersModule,
+    PrismaModule,
+    SalesModule,
+    ProductsModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
