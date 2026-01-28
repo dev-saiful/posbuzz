@@ -32,8 +32,8 @@ export function Login() {
       await login(values.email, values.password);
       message.success("Welcome back!");
       navigate("/");
-    } catch (error: any) {
-      message.error(error.response?.data?.message || "Invalid credentials");
+    } catch (error) {
+      message.error(error instanceof Error ? error.message : "Login failed");
     } finally {
       setLoading(false);
     }
@@ -90,7 +90,7 @@ export function Login() {
               ]}
             >
               <Input.Password
-                placeholder="••••••••"
+                placeholder="Enter password"
                 autoComplete="current-password"
               />
             </Form.Item>

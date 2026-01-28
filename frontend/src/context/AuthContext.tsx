@@ -5,75 +5,98 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
+import axios from "axios";
 import api from "../api/client";
 
 interface User {
   id: string;
   email: string;
+  name: string;
 }
 
 interface AuthContextType {
   user: User | null;
-  token: string | null;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string) => Promise<void>;
-  logout: () => void;
   isLoading: boolean;
+  login: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string, confirmPassword: string) => Promise<void>;
+  logout: () => Promise<void>;
+}
+
+// Helper to extract error message from API errors
+function getErrorMessage(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    const message = error.response?.data?.message;
+    if (Array.isArray(message)) return message[0];
+    if (typeof message === "string") return message;
+    return error.message || "An error occurred";
+  }
+  if (error instanceof Error) return error.message;
+  return "An unexpected error occurred";
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token"),
-  );
   const [isLoading, setIsLoading] = useState(true);
 
+  // Check auth status on mount
   useEffect(() => {
-    if (token) {
-      api
-        .get("/auth/me")
-        .then((res) => setUser(res.data))
-        .catch(() => {
-          localStorage.removeItem("token");
-          setToken(null);
-        })
-        .finally(() => setIsLoading(false));
-    } else {
-      setIsLoading(false);
-    }
-  }, [token]);
+    const checkAuth = async () => {
+      try {
+        const response = await api.get("/auth/me");
+        setUser(response.data);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuth();
+  }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await api.post("/auth/login", { email, password });
-    localStorage.setItem("token", res.data.access_token);
-    setToken(res.data.access_token);
+    try {
+      await api.post("/auth/login", { email, password });
+      // Fetch user profile after successful login
+      const response = await api.get("/auth/me");
+      setUser(response.data);
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   };
 
-  const register = async (email: string, password: string) => {
-    const res = await api.post("/auth/register", { email, password });
-    localStorage.setItem("token", res.data.access_token);
-    setToken(res.data.access_token);
+  const register = async (name: string, email: string, password: string, confirmPassword: string) => {
+    try {
+      await api.post("/auth/register", { name, email, password, confirmPassword });
+      // Fetch user profile after successful registration
+      const response = await api.get("/auth/me");
+      setUser(response.data);
+    } catch (error) {
+      throw new Error(getErrorMessage(error));
+    }
   };
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    setToken(null);
-    setUser(null);
+  const logout = async () => {
+    try {
+      await api.post("/auth/logout");
+    } finally {
+      setUser(null);
+    }
   };
 
   return (
-    <AuthContext.Provider
-      value={{ user, token, login, register, logout, isLoading }}
-    >
+    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export const useAuth = () => {
+export function useAuth() {
   const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  if (!context) {
+    throw new Error("useAuth must be used within an AuthProvider");
+  }
   return context;
-};
+}

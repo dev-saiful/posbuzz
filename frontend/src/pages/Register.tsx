@@ -26,14 +26,21 @@ export function Register() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
 
-  const onFinish = async (values: { email: string; password: string }) => {
+  const onFinish = async (values: {
+    email: string;
+    name: string;
+    password: string;
+    confirmPassword: string;
+  }) => {
     setLoading(true);
     try {
-      await register(values.email, values.password);
+      await register(values.name, values.email, values.password, values.confirmPassword);
       message.success("Account created successfully!");
       navigate("/");
-    } catch (error: any) {
-      message.error(error.response?.data?.message || "Registration failed");
+    } catch (error) {
+      message.error(
+        error instanceof Error ? error.message : "Registration failed",
+      );
     } finally {
       setLoading(false);
     }
@@ -79,18 +86,65 @@ export function Register() {
             </Form.Item>
 
             <Form.Item
+              name="name"
+              label="Full name"
+              rules={[
+                {
+                  required: true,
+                  message: "Please enter your name",
+                },
+              ]}
+            >
+              <Input placeholder="John Doe" autoComplete="name" />
+            </Form.Item>
+
+            <Form.Item
               name="password"
               label="Password"
               rules={[
                 {
                   required: true,
-                  min: 6,
-                  message: "Password must be at least 6 characters",
+                  message: "Please enter a password",
+                },
+                {
+                  min: 8,
+                  message: "Password must be at least 8 characters",
+                },
+                {
+                  pattern:
+                    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/,
+                  message:
+                    "Password must contain uppercase, lowercase, number, and special character (@$!%*?&)",
                 },
               ]}
             >
               <Input.Password
-                placeholder="••••••••"
+                placeholder="Enter password"
+                autoComplete="new-password"
+              />
+            </Form.Item>
+
+            <Form.Item
+              name="confirmPassword"
+              label="Confirm Password"
+              dependencies={["password"]}
+              rules={[
+                {
+                  required: true,
+                  message: "Please confirm your password",
+                },
+                ({ getFieldValue }) => ({
+                  validator(_, value) {
+                    if (!value || getFieldValue("password") === value) {
+                      return Promise.resolve();
+                    }
+                    return Promise.reject(new Error("Passwords do not match"));
+                  },
+                }),
+              ]}
+            >
+              <Input.Password
+                placeholder="Confirm password"
                 autoComplete="new-password"
               />
             </Form.Item>

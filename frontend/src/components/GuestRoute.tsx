@@ -2,7 +2,11 @@ import { Navigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { Spin } from "antd";
 
-export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+/**
+ * GuestRoute - Only allows access to unauthenticated users.
+ * If user is already logged in, redirects to home page.
+ */
+export function GuestRoute({ children }: { children: React.ReactNode }) {
   const { user, isLoading } = useAuth();
 
   if (isLoading) {
@@ -14,8 +18,9 @@ export function ProtectedRoute({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!user) {
-    return <Navigate to="/login" replace />;
+  // If user is already authenticated, redirect to home
+  if (user) {
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;
